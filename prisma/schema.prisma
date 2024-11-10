@@ -7,27 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Citas {
-  id_cita        String       @id @default(cuid())
-  id_usuario     String
-  id_mascota     String
-  id_servicio    String
-  fecha_hora     DateTime     @db.DateTime(0)
-  descripcion    String?      @db.Text
-  estado         citas_estado @default(programada)
-  fecha_creacion DateTime?    @default(now()) @db.Timestamp(0)
-
-  usuario        Usuarios         @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
-  mascota        Mascotas         @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
-  servicio       Servicios        @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
-  HistorialCitas HistorialCitas[]
-  Pagos          Pagos[]
-
-  @@index([id_mascota], map: "id_mascota")
-  @@index([id_servicio], map: "id_servicio")
-  @@index([id_usuario], map: "id_usuario")
-}
-
 model Facturas {
   id_factura    String    @id @default(cuid())
   id_pago       String
@@ -120,17 +99,25 @@ model Servicios {
   duracion        Int?
   recomendaciones String? @db.Text
 
+  // Relación muchos a muchos con Usuarios (doctores)
+  doctores Usuarios[] @relation(name: "doctorServicios")
+
+  // Relación con Citas
   Citas Citas[]
 }
 
 model Usuarios {
-  id_usuario           String    @id @default(cuid())
-  nombre               String    @db.VarChar(100)
-  email                String    @unique(map: "email") @db.VarChar(100)
-  password             String    @db.VarChar(255)
-  telefono             String?   @db.VarChar(20)
-  fecha_creacion       DateTime? @default(now()) @db.Timestamp(0)
-  ultima_actualizacion DateTime? @default(now()) @db.Timestamp(0)
+  id_usuario           String     @id @default(cuid())
+  nombre               String     @db.VarChar(100)
+  email                String     @unique @db.VarChar(100)
+  password             String     @db.VarChar(255)
+  telefono             String?    @db.VarChar(20)
+  fecha_creacion       DateTime?  @default(now()) @db.Timestamp(0)
+  ultima_actualizacion DateTime?  @default(now()) @db.Timestamp(0)
+  rol                  UsuarioRol @default(cliente)
+
+  // Relación muchos a muchos con Servicios (si el usuario es doctor)
+  serviciosDoctores Servicios[] @relation(name: "doctorServicios")
 
   Mascotas          Mascotas[]
   Citas             Citas[]
@@ -138,6 +125,30 @@ model Usuarios {
   MensajesRecibidos Mensajes[]       @relation("MensajesRecibe")
   Notificaciones    Notificaciones[]
   Pagos             Pagos[]
+}
+
+model Citas {
+  id_cita        String       @id @default(cuid())
+  id_usuario     String
+  id_mascota     String
+  id_servicio    String
+  fecha_hora     DateTime     @db.DateTime(0)
+  descripcion    String?      @db.Text
+  estado         citas_estado @default(programada)
+  fecha_creacion DateTime?    @default(now()) @db.Timestamp(0)
+
+  // Relaciones de citas
+  usuario        Usuarios         @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  mascota        Mascotas         @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
+  servicio       Servicios        @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+  HistorialCitas HistorialCitas[]
+  Pagos          Pagos[]
+}
+
+enum UsuarioRol {
+  cliente
+  doctor
+  admin
 }
 
 enum notificaciones_tipo {

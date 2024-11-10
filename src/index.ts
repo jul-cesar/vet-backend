@@ -14,7 +14,7 @@ export type Variables = {
 const prisma = new PrismaClient();
 const app = new Hono<{ Variables: Variables }>().basePath("/api");
 const JWT_SECRET = process.env.JWT_SECRET || "";
-const rutasPublicas = ["/auth/register", "/auth/login"];
+const rutasPublicas = ["/api/auth/register", "/api/auth/login"];
 
 app.use("*", async (c, next) => {
   c.set("prisma", prisma);
