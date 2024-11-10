@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Citas {
+  id_cita        String       @id @default(cuid())
+  id_usuario     String
+  id_mascota     String
+  id_servicio    String
+  fecha_hora     DateTime     @db.DateTime(0)
+  descripcion    String?      @db.Text
+  estado         citas_estado @default(programada)
+  fecha_creacion DateTime?    @default(now()) @db.Timestamp(0)
+
+  usuario        Usuarios         @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  mascota        Mascotas         @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
+  servicio       Servicios        @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+  HistorialCitas HistorialCitas[]
+  Pagos          Pagos[]
+
+  @@index([id_mascota], map: "id_mascota")
+  @@index([id_servicio], map: "id_servicio")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model Facturas {
+  id_factura    String    @id @default(cuid())
+  id_pago       String
+  fecha_emision DateTime? @default(now()) @db.DateTime(0)
+  monto_total   Decimal   @db.Decimal(10, 2)
+  detalles      String?   @db.Text
+
+  pago Pagos @relation(fields: [id_pago], references: [id_pago], onDelete: Cascade)
+
+  @@index([id_pago], map: "id_pago")
+}
+
+model HistorialCitas {
+  id_historial   String    @id @default(cuid())
+  id_cita        String
+  fecha_servicio DateTime? @db.DateTime(0)
+  observaciones  String?   @db.Text
+
+  cita Citas @relation(fields: [id_cita], references: [id_cita], onDelete: Cascade)
+
+  @@index([id_cita], map: "id_cita")
+}
+
+model Mascotas {
+  id_mascota     String    @id @default(cuid())
+  id_usuario     String
+  nombre         String    @db.VarChar(50)
+  especie        String    @db.VarChar(50)
+  raza           String?   @db.VarChar(50)
+  edad           Int?
+  notas_medicas  String?   @db.Text
+  fecha_registro DateTime? @default(now()) @db.Timestamp(0)
+
+  usuario Usuarios @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  Citas   Citas[]
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model Mensajes {
+  id_mensaje        String    @id @default(cuid())
+  id_usuario_envia  String
+  id_usuario_recibe String
+  contenido         String    @db.Text
+  fecha_envio       DateTime? @default(now()) @db.DateTime(0)
+  leido             Boolean?  @default(false)
+
+  usuarioEnvia  Usuarios @relation("MensajesEnvia", fields: [id_usuario_envia], references: [id_usuario], onDelete: Cascade)
+  usuarioRecibe Usuarios @relation("MensajesRecibe", fields: [id_usuario_recibe], references: [id_usuario], onDelete: Cascade)
+
+  @@index([id_usuario_envia], map: "id_usuario_envia")
+  @@index([id_usuario_recibe], map: "id_usuario_recibe")
+}
+
+model Notificaciones {
+  id_notificacion String              @id @default(cuid())
+  id_usuario      String
+  tipo            notificaciones_tipo
+  mensaje         String              @db.Text
+  fecha_envio     DateTime?           @default(now()) @db.DateTime(0)
+  leido           Boolean?            @default(false)
+
+  usuario Usuarios @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model Pagos {
+  id_pago     String            @id @default(cuid())
+  id_usuario  String
+  id_cita     String?
+  monto       Decimal           @db.Decimal(10, 3)
+  fecha_pago  DateTime?         @default(now()) @db.DateTime(0)
+  metodo_pago pagos_metodo_pago
+  estado      pagos_estado?     @default(pendiente)
+
+  usuario  Usuarios   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  cita     Citas?     @relation(fields: [id_cita], references: [id_cita], onDelete: SetNull)
+  Facturas Facturas[]
+
+  @@index([id_cita], map: "id_cita")
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model Servicios {
+  id_servicio     String  @id @default(cuid())
+  nombre          String  @db.VarChar(100)
+  descripcion     String? @db.Text
+  precio          Decimal @db.Decimal(10, 3)
+  duracion        Int?
+  recomendaciones String? @db.Text
+
+  Citas Citas[]
+}
+
+model Usuarios {
+  id_usuario           String    @id @default(cuid())
+  nombre               String    @db.VarChar(100)
+  email                String    @unique(map: "email") @db.VarChar(100)
+  password             String    @db.VarChar(255)
+  telefono             String?   @db.VarChar(20)
+  fecha_creacion       DateTime? @default(now()) @db.Timestamp(0)
+  ultima_actualizacion DateTime? @default(now()) @db.Timestamp(0)
+
+  Mascotas          Mascotas[]
+  Citas             Citas[]
+  MensajesEnviados  Mensajes[]       @relation("MensajesEnvia")
+  MensajesRecibidos Mensajes[]       @relation("MensajesRecibe")
+  Notificaciones    Notificaciones[]
+  Pagos             Pagos[]
+}
+
+enum notificaciones_tipo {
+  recordatorio_cita
+  promocion
+  informacion
+}
+
+enum pagos_metodo_pago {
+  tarjeta_credito
+  tarjeta_debito
+  transferencia
+  efectivo
+}
+
+enum citas_estado {
+  programada
+  completada
+  cancelada
+}
+
+enum pagos_estado {
+  completado
+  pendiente
+  cancelado
+}
