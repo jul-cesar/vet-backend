@@ -93,6 +93,7 @@ model Pagos {
 
 model Servicios {
   id_servicio     String  @id @default(cuid())
+  img             String
   nombre          String  @db.VarChar(100)
   descripcion     String? @db.Text
   precio          Decimal @db.Decimal(10, 3)

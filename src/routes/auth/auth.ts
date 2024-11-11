@@ -24,11 +24,13 @@ Auth.post("/register", userValidator, async (c) => {
 
     const userRegistered = await prisma.usuarios.create({
       data: { email, nombre, password: hashedPassword, telefono },
+      select: {
+        id_usuario: true,
+        email: true,
+        nombre: true,
+      },
     });
-    return c.json(
-      { message: "Usuario registrado correctamente", data: userRegistered },
-      201
-    );
+    return c.json({ message: "Registro exitoso", data: userRegistered }, 201);
   } catch (error) {
     const prismaError = handlePrismaError(error);
     console.error("Error creating user:", prismaError);
@@ -51,6 +53,10 @@ Auth.post("/login", async (c) => {
       email: string;
       password: string;
     }>();
+
+    if (!email || !password) {
+      return c.json({ message: "Email o contraseña incorrecto" }, 401);
+    }
     const prisma = c.get("prisma");
     const userExist = await prisma.usuarios.findUnique({
       where: { email },
@@ -74,7 +80,18 @@ Auth.post("/login", async (c) => {
       JWT_SECRET,
       "HS256"
     );
-    return c.json({ message: "Inicio de sesión exitoso", token }, 200);
+    return c.json(
+      {
+        message: "Inicio de sesión exitoso",
+        token,
+        data: {
+          id_usuario: userExist.id_usuario,
+          nombre: userExist.nombre,
+          email: userExist.email,
+        },
+      },
+      200
+    );
   } catch (error) {
     console.error(error);
     return c.json({ message: "Hubo un error al iniciar sesión" }, 500);

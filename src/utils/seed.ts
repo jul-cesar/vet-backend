@@ -13,8 +13,20 @@ async function main() {
       rol: 'doctor',
       serviciosDoctores: {
         create: [
-          { nombre: 'Consulta General', descripcion: 'Consulta básica para revisión general', precio: 20.00, duracion: 30 },
-          { nombre: 'Vacunación', descripcion: 'Aplicación de vacunas', precio: 30.00, duracion: 20 }
+          {
+            nombre: 'Consulta General',
+            descripcion: 'Consulta básica para revisión general de la salud de la mascota.',
+            precio: 20.00,
+            duracion: 30,
+            img: 'https://www.veterinariadomicilio.cl/wp-content/uploads/2016/10/cirugias-animales-3.jpg'
+          },
+          {
+            nombre: 'Vacunación',
+            descripcion: 'Aplicación de vacunas esenciales para prevenir enfermedades.',
+            precio: 30.00,
+            duracion: 20,
+            img: 'https://site.ucdb.br/public/textos/1024130-hospital-veterinario-ucbd.jpg'
+          }
         ]
       }
     }
@@ -29,8 +41,20 @@ async function main() {
       rol: 'doctor',
       serviciosDoctores: {
         create: [
-          { nombre: 'Desparasitación', descripcion: 'Tratamiento para eliminar parásitos', precio: 15.00, duracion: 15 },
-          { nombre: 'Cirugía Menor', descripcion: 'Procedimientos quirúrgicos menores', precio: 150.00, duracion: 120 }
+          {
+            nombre: 'Desparasitación',
+            descripcion: 'Tratamiento para eliminar parásitos internos y externos.',
+            precio: 15.00,
+            duracion: 15,
+            img: 'https://www.lavanguardia.com/files/og_thumbnail/uploads/2019/10/25/5fa52ef8267ad.jpeg'
+          },
+          {
+            nombre: 'Cirugía Menor',
+            descripcion: 'Procedimientos quirúrgicos menores con recuperación rápida.',
+            precio: 150.00,
+            duracion: 120,
+            img: 'https://veterinaria.cayetano.edu.pe/wp-content/uploads/sites/22/2022/09/dia-de-practica-5-819x1024.jpg'
+          }
         ]
       }
     }
@@ -82,9 +106,10 @@ async function main() {
   const servicioConsulta = await prisma.servicios.create({
     data: {
       nombre: 'Consulta Especializada',
-      descripcion: 'Consulta para problemas específicos',
+      descripcion: 'Consulta para diagnósticos y tratamientos específicos.',
       precio: 50.00,
-      duracion: 45
+      duracion: 45,
+      img: 'https://i0.wp.com/planetamascotaperu.com/wp-content/uploads/2023/01/desparasitar-perros.webp?fit=960%2C540&ssl=1'
     }
   });
 
@@ -95,7 +120,9 @@ async function main() {
       id_mascota: mascota1.id_mascota,
       id_servicio: servicioConsulta.id_servicio,
       fecha_hora: new Date('2023-12-01T10:00:00Z'),
-      descripcion: 'Chequeo general de Firulais'
+      descripcion: 'Chequeo general de Firulais para evaluar su estado de salud y actualizar su cartilla de vacunación.',
+      estado: 'programada',
+      fecha_creacion: new Date()
     }
   });
 
@@ -105,7 +132,9 @@ async function main() {
       id_mascota: mascota2.id_mascota,
       id_servicio: servicioConsulta.id_servicio,
       fecha_hora: new Date('2023-12-02T14:00:00Z'),
-      descripcion: 'Chequeo general de Michi'
+      descripcion: 'Revisión de Michi debido a pérdida de apetito y comportamiento inusual.',
+      estado: 'programada',
+      fecha_creacion: new Date()
     }
   });
 
@@ -116,7 +145,8 @@ async function main() {
       id_cita: cita1.id_cita,
       monto: 20.00,
       metodo_pago: 'tarjeta_credito',
-      estado: 'completado'
+      estado: 'completado',
+      fecha_pago: new Date()
     }
   });
 
@@ -126,7 +156,8 @@ async function main() {
       id_cita: cita2.id_cita,
       monto: 50.00,
       metodo_pago: 'efectivo',
-      estado: 'pendiente'
+      estado: 'pendiente',
+      fecha_pago: new Date()
     }
   });
 
@@ -135,7 +166,7 @@ async function main() {
     data: {
       id_pago: pago1.id_pago,
       monto_total: 20.00,
-      detalles: 'Consulta general de Firulais'
+      detalles: 'Consulta general de Firulais realizada el 01 de diciembre de 2023.'
     }
   });
 
@@ -143,7 +174,7 @@ async function main() {
     data: {
       id_pago: pago2.id_pago,
       monto_total: 50.00,
-      detalles: 'Consulta especializada de Michi'
+      detalles: 'Consulta especializada de Michi programada para el 02 de diciembre de 2023.'
     }
   });
 }
