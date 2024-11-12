@@ -1,188 +1,130 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UsuarioRol, notificaciones_tipo, pagos_metodo_pago, citas_estado, disponibilidad_estado, pagos_estado } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Crear Doctores
-  const doctor1 = await prisma.usuarios.create({
+  // Crear Usuarios
+  const usuario1 = await prisma.usuarios.create({
     data: {
-      nombre: 'Dr. Juan Pérez',
-      email: 'juan.perez@veterinaria.com',
-      password: 'password123',
-      telefono: '555-1234',
-      rol: 'doctor',
-      serviciosDoctores: {
-        create: [
-          {
-            nombre: 'Consulta General',
-            descripcion: 'Consulta básica para revisión general de la salud de la mascota.',
-            precio: 20.00,
-            duracion: 30,
-            img: 'https://www.veterinariadomicilio.cl/wp-content/uploads/2016/10/cirugias-animales-3.jpg'
-          },
-          {
-            nombre: 'Vacunación',
-            descripcion: 'Aplicación de vacunas esenciales para prevenir enfermedades.',
-            precio: 30.00,
-            duracion: 20,
-            img: 'https://site.ucdb.br/public/textos/1024130-hospital-veterinario-ucbd.jpg'
-          }
-        ]
-      }
-    }
+      nombre: "Juan Perez",
+      email: "juan@example.com",
+      password: "hashed_password",
+      telefono: "123456789",
+      rol: UsuarioRol.cliente,
+    },
   });
 
-  const doctor2 = await prisma.usuarios.create({
+  const usuario2 = await prisma.usuarios.create({
     data: {
-      nombre: 'Dra. María López',
-      email: 'maria.lopez@veterinaria.com',
-      password: 'password123',
-      telefono: '555-5678',
-      rol: 'doctor',
-      serviciosDoctores: {
-        create: [
-          {
-            nombre: 'Desparasitación',
-            descripcion: 'Tratamiento para eliminar parásitos internos y externos.',
-            precio: 15.00,
-            duracion: 15,
-            img: 'https://www.lavanguardia.com/files/og_thumbnail/uploads/2019/10/25/5fa52ef8267ad.jpeg'
-          },
-          {
-            nombre: 'Cirugía Menor',
-            descripcion: 'Procedimientos quirúrgicos menores con recuperación rápida.',
-            precio: 150.00,
-            duracion: 120,
-            img: 'https://veterinaria.cayetano.edu.pe/wp-content/uploads/sites/22/2022/09/dia-de-practica-5-819x1024.jpg'
-          }
-        ]
-      }
-    }
+      nombre: "Dr. Ana Rodriguez",
+      email: "ana@example.com",
+      password: "hashed_password",
+      telefono: "987654321",
+      rol: UsuarioRol.doctor,
+    },
   });
 
-  // 2. Crear Clientes
-  const cliente1 = await prisma.usuarios.create({
+  // Crear Servicios
+  const servicio1 = await prisma.servicios.create({
     data: {
-      nombre: 'Carlos Fernández',
-      email: 'carlos.fernandez@correo.com',
-      password: 'password123',
-      telefono: '555-9876',
-      rol: 'cliente'
-    }
+      nombre: "Consulta General",
+      img: "https://example.com/consulta.jpg",
+      descripcion: "Consulta para revisión general de la salud de la mascota",
+      precio: 20000,
+      duracion: 30,
+      doctores: { connect: { id_usuario: usuario2.id_usuario } },
+    },
   });
 
-  const cliente2 = await prisma.usuarios.create({
+  const servicio2 = await prisma.servicios.create({
     data: {
-      nombre: 'Laura Martínez',
-      email: 'laura.martinez@correo.com',
-      password: 'password123',
-      telefono: '555-5432',
-      rol: 'cliente'
-    }
+      nombre: "Vacunación",
+      img: "https://example.com/vacunacion.jpg",
+      descripcion: "Aplicación de vacunas esenciales",
+      precio: 30000,
+      duracion: 20,
+      doctores: { connect: { id_usuario: usuario2.id_usuario } },
+    },
   });
 
-  // 3. Crear Mascotas
+  // Crear Mascotas
   const mascota1 = await prisma.mascotas.create({
     data: {
-      nombre: 'Firulais',
-      especie: 'Perro',
-      raza: 'Labrador',
+      nombre: "Firulais",
+      especie: "Perro",
+      raza: "Labrador",
       edad: 5,
-      id_usuario: cliente1.id_usuario
-    }
+      notas_medicas: "Alérgico a algunos alimentos",
+      usuario: { connect: { id_usuario: usuario1.id_usuario } },
+    },
   });
 
-  const mascota2 = await prisma.mascotas.create({
+  // Crear DisponibilidadServicio
+  const disponibilidad1 = await prisma.disponibilidadServicio.create({
     data: {
-      nombre: 'Michi',
-      especie: 'Gato',
-      raza: 'Siames',
-      edad: 3,
-      id_usuario: cliente2.id_usuario
-    }
+      fecha: new Date('2024-12-01T10:00:00Z'),
+      estado: disponibilidad_estado.disponible,
+      servicio: { connect: { id_servicio: servicio1.id_servicio } },
+    },
   });
 
-  // 4. Crear Servicios Independientes (opcional)
-  const servicioConsulta = await prisma.servicios.create({
+  const disponibilidad2 = await prisma.disponibilidadServicio.create({
     data: {
-      nombre: 'Consulta Especializada',
-      descripcion: 'Consulta para diagnósticos y tratamientos específicos.',
-      precio: 50.00,
-      duracion: 45,
-      img: 'https://i0.wp.com/planetamascotaperu.com/wp-content/uploads/2023/01/desparasitar-perros.webp?fit=960%2C540&ssl=1'
-    }
+      fecha: new Date('2024-12-01T11:00:00Z'),
+      estado: disponibilidad_estado.disponible,
+      servicio: { connect: { id_servicio: servicio2.id_servicio } },
+    },
   });
 
-  // 5. Crear Citas
-  const cita1 = await prisma.citas.create({
+  // Crear Citas
+  await prisma.citas.create({
     data: {
-      id_usuario: cliente1.id_usuario,
+      id_usuario: usuario1.id_usuario,
       id_mascota: mascota1.id_mascota,
-      id_servicio: servicioConsulta.id_servicio,
-      fecha_hora: new Date('2023-12-01T10:00:00Z'),
-      descripcion: 'Chequeo general de Firulais para evaluar su estado de salud y actualizar su cartilla de vacunación.',
-      estado: 'programada',
-      fecha_creacion: new Date()
-    }
+      id_servicio: servicio1.id_servicio,
+      id_disponibilidad: disponibilidad1.id_disponibilidad,
+      descripcion: "Primera consulta de Firulais",
+      estado: citas_estado.programada,
+      fecha_creacion: new Date(),
+    },
   });
 
-  const cita2 = await prisma.citas.create({
-    data: {
-      id_usuario: cliente2.id_usuario,
-      id_mascota: mascota2.id_mascota,
-      id_servicio: servicioConsulta.id_servicio,
-      fecha_hora: new Date('2023-12-02T14:00:00Z'),
-      descripcion: 'Revisión de Michi debido a pérdida de apetito y comportamiento inusual.',
-      estado: 'programada',
-      fecha_creacion: new Date()
-    }
-  });
-
-  // 6. Crear Pagos
+  // Crear Pagos
   const pago1 = await prisma.pagos.create({
     data: {
-      id_usuario: cliente1.id_usuario,
-      id_cita: cita1.id_cita,
-      monto: 20.00,
-      metodo_pago: 'tarjeta_credito',
-      estado: 'completado',
-      fecha_pago: new Date()
-    }
+      id_usuario: usuario1.id_usuario,
+      monto: 20000,
+      metodo_pago: pagos_metodo_pago.tarjeta_credito,
+      estado: pagos_estado.completado,
+      fecha_pago: new Date(),
+    },
   });
 
-  const pago2 = await prisma.pagos.create({
-    data: {
-      id_usuario: cliente2.id_usuario,
-      id_cita: cita2.id_cita,
-      monto: 50.00,
-      metodo_pago: 'efectivo',
-      estado: 'pendiente',
-      fecha_pago: new Date()
-    }
-  });
-
-  // 7. Crear Facturas
+  // Crear Facturas
   await prisma.facturas.create({
     data: {
       id_pago: pago1.id_pago,
-      monto_total: 20.00,
-      detalles: 'Consulta general de Firulais realizada el 01 de diciembre de 2023.'
-    }
+      fecha_emision: new Date(),
+      monto_total: 20000,
+      detalles: "Consulta General",
+    },
   });
 
-  await prisma.facturas.create({
+  // Crear Notificaciones
+  await prisma.notificaciones.create({
     data: {
-      id_pago: pago2.id_pago,
-      monto_total: 50.00,
-      detalles: 'Consulta especializada de Michi programada para el 02 de diciembre de 2023.'
-    }
+      id_usuario: usuario1.id_usuario,
+      tipo: notificaciones_tipo.recordatorio_cita,
+      mensaje: "Recuerde su cita para el 01 de diciembre.",
+      fecha_envio: new Date(),
+      leido: false,
+    },
   });
+
+  console.log("Datos iniciales insertados correctamente.");
 }
 
 main()
-  .then(() => {
-    console.log('Base de datos inicializada correctamente.');
-  })
   .catch((e) => {
     console.error(e);
     process.exit(1);

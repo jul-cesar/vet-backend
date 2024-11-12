@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { Usuarios } from "./routes/usuarios/usuarios.js";
 import { logger } from "hono/logger";
 import { Servicios } from "./routes/servicios/servicios.js";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { Auth } from "./routes/auth/auth.js";
 import { jwt } from "hono/jwt";
 

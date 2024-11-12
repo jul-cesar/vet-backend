@@ -1,5 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
+import { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
+
+
 
 const serviciosSchema = z.object({
   nombre: z
@@ -18,17 +21,19 @@ const serviciosSchema = z.object({
         "La descripción del servicio debe contener al menos 20 caracteres.",
     })
     .optional(),
-
-  precio: z
-    .number()
-    .min(10000, {
-      message:
-        "El valor del servicio debe ser de al menos 10,000 pesos Colombianos.",
-    })
-    .positive({ message: "El valor del servicio debe ser un número positivo." })
-    .refine((val) => parseFloat(val.toFixed(3)) === val, {
+  img: z.string().min(10, {
+    message:
+      "La url de la imagen del servicio debe contener al menos 20 caracteres.",
+  }),
+   precio: z
+    .string()
+    .regex(/^\d+(\.\d{1,3})?$/, {
       message: "El precio debe tener hasta 3 decimales.",
-    }),
+    })
+    .refine((val) => parseFloat(val) >= 10000, {
+      message: "El valor del servicio debe ser de al menos 10,000 pesos Colombianos.",
+    })
+    .transform((val) => new Decimal(val)),  // Convierte a Decimal
 
   duracion: z
     .number()

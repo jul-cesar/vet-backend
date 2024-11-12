@@ -103,6 +103,9 @@ model Servicios {
   // Relación muchos a muchos con Usuarios (doctores)
   doctores Usuarios[] @relation(name: "doctorServicios")
 
+  // Relación con DisponibilidadServicio
+  disponibilidades DisponibilidadServicio[] @relation(name: "servicioDisponibilidad")
+
   // Relación con Citas
   Citas Citas[]
 }
@@ -129,21 +132,44 @@ model Usuarios {
 }
 
 model Citas {
-  id_cita        String       @id @default(cuid())
-  id_usuario     String
-  id_mascota     String
-  id_servicio    String
-  fecha_hora     DateTime     @db.DateTime(0)
-  descripcion    String?      @db.Text
-  estado         citas_estado @default(programada)
-  fecha_creacion DateTime?    @default(now()) @db.Timestamp(0)
+  id_cita           String       @id @default(cuid())
+  id_usuario        String
+  id_mascota        String
+  id_servicio       String
+  id_disponibilidad String       @unique // Referencia a la disponibilidad específica
+  descripcion       String?      @db.Text
+  estado            citas_estado @default(programada)
+  fecha_creacion    DateTime?    @default(now()) @db.Timestamp(0)
 
   // Relaciones de citas
-  usuario        Usuarios         @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
-  mascota        Mascotas         @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
-  servicio       Servicios        @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+  usuario        Usuarios               @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  mascota        Mascotas               @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
+  servicio       Servicios              @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+  disponibilidad DisponibilidadServicio @relation(name: "citaDisponibilidad", fields: [id_disponibilidad], references: [id_disponibilidad], onDelete: Cascade)
+
   HistorialCitas HistorialCitas[]
   Pagos          Pagos[]
+}
+
+model DisponibilidadServicio {
+  id_disponibilidad String                @id @default(cuid())
+  id_servicio       String
+  fecha             DateTime // Fecha y hora específica disponible para el servicio
+  estado            disponibilidad_estado @default(disponible)
+
+  // Relación con Servicios
+  servicio Servicios @relation(name: "servicioDisponibilidad", fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+
+  // Relación con Citas (si la disponibilidad está reservada)
+  citas Citas? @relation(name: "citaDisponibilidad")
+
+  @@index([id_servicio], map: "id_servicio")
+}
+
+enum disponibilidad_estado {
+  disponible
+  reservado
+  no_disponible
 }
 
 enum UsuarioRol {

@@ -75,7 +75,7 @@ Auth.post("/login", async (c) => {
     const token = await sign(
       {
         userId: userExist.id_usuario,
-        exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
       },
       JWT_SECRET,
       "HS256"

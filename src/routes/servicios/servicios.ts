@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { servciosValidator, type Servicio } from "./validator.js";
 import { handlePrismaError } from "../../utils/prismaErrorHandle.js";
 import type { Variables } from "../../index.js";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export const Servicios = new Hono<{ Variables: Variables }>();
 
@@ -9,9 +10,42 @@ export const Servicios = new Hono<{ Variables: Variables }>();
 Servicios.get("/", async (c) => {
   try {
     const prisma = c.get("prisma");
-    const servicios = await prisma.servicios.findMany();
+    const servicios = await prisma.servicios.findMany({});
+    const serviciosProcesados = servicios.map((servicio) => ({
+      ...servicio,
+      precio: new Decimal(servicio.precio).toNumber(),
+    }));
 
-    return c.json(servicios);
+    return c.json(serviciosProcesados);
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    return c.json(
+      {
+        message: "Error interno del servidor al obtener servicios",
+      },
+      500
+    );
+  }
+});
+
+Servicios.get("/:id", async (c) => {
+  try {
+    const prisma = c.get("prisma");
+    const id = c.req.param("id");
+    const servicio = await prisma.servicios.findUnique({
+      where: {
+        id_servicio: id,
+      },
+    });
+    if (!servicio) {
+      return c.json({ message: "Servicio no existente" });
+    }
+    const servicioProcesado = {
+      ...servicio,
+      precio: new Decimal(servicio?.precio).toNumber(),
+    };
+
+    return c.json(servicioProcesado);
   } catch (error) {
     console.error("Error fetching services:", error);
     return c.json(
@@ -28,12 +62,14 @@ Servicios.post("/", servciosValidator, async (c) => {
     const prisma = c.get("prisma");
     const body = await c.req.json<Servicio>();
 
-    const { descripcion, duracion, nombre, precio, recomendaciones } = body;
+    const { descripcion, duracion, nombre, precio, recomendaciones, img } =
+      body;
 
     const serviceCreated = await prisma.servicios.create({
       data: {
         nombre,
-        precio,
+        img,
+        precio: new Decimal(precio),
         descripcion,
         duracion,
         recomendaciones,
