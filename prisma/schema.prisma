@@ -100,13 +100,10 @@ model Servicios {
   duracion        Int?
   recomendaciones String? @db.Text
 
-  // Relación muchos a muchos con Usuarios (doctores)
   doctores Usuarios[] @relation(name: "doctorServicios")
 
-  // Relación con DisponibilidadServicio
   disponibilidades DisponibilidadServicio[] @relation(name: "servicioDisponibilidad")
 
-  // Relación con Citas
   Citas Citas[]
 }
 
@@ -120,7 +117,6 @@ model Usuarios {
   ultima_actualizacion DateTime?  @default(now()) @db.Timestamp(0)
   rol                  UsuarioRol @default(cliente)
 
-  // Relación muchos a muchos con Servicios (si el usuario es doctor)
   serviciosDoctores Servicios[] @relation(name: "doctorServicios")
 
   Mascotas          Mascotas[]
@@ -136,12 +132,11 @@ model Citas {
   id_usuario        String
   id_mascota        String
   id_servicio       String
-  id_disponibilidad String       @unique // Referencia a la disponibilidad específica
+  id_disponibilidad String       @unique
   descripcion       String?      @db.Text
   estado            citas_estado @default(programada)
   fecha_creacion    DateTime?    @default(now()) @db.Timestamp(0)
 
-  // Relaciones de citas
   usuario        Usuarios               @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
   mascota        Mascotas               @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade)
   servicio       Servicios              @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
@@ -154,13 +149,11 @@ model Citas {
 model DisponibilidadServicio {
   id_disponibilidad String                @id @default(cuid())
   id_servicio       String
-  fecha             DateTime // Fecha y hora específica disponible para el servicio
+  fecha             DateTime
   estado            disponibilidad_estado @default(disponible)
 
-  // Relación con Servicios
   servicio Servicios @relation(name: "servicioDisponibilidad", fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
 
-  // Relación con Citas (si la disponibilidad está reservada)
   citas Citas? @relation(name: "citaDisponibilidad")
 
   @@index([id_servicio], map: "id_servicio")

@@ -15,7 +15,7 @@ const notificacionesSchema = z.object({
   leido: z.boolean().optional().default(false),
 });
 
-type Notificacion  = z.infer<typeof notificacionesSchema>
+export type Notificacion  = z.infer<typeof notificacionesSchema>
 
 
 export const notificacionesValidator = zValidator(
