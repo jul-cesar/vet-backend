@@ -24,7 +24,7 @@ const mascotasSchema = z.object({
     .string()
     .max(500, { message: "Las notas médicas no deben exceder los 500 caracteres." })
     .optional(),
-  fecha_registro: z.date().optional().default(new Date()),
+ 
 });
 
 export type Mascota = z.infer<typeof mascotasSchema>;
