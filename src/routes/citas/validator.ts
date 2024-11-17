@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { citas_estado } from "@prisma/client";
+import { citas_estado, pagos_metodo_pago } from "@prisma/client";
 import { z } from "zod";
 
 const CitasSchema = z.object({
@@ -16,6 +16,10 @@ const CitasSchema = z.object({
 });
 
 export type Cita = z.infer<typeof CitasSchema>;
+export type CitaPago = Cita & {
+  metodo_pago: pagos_metodo_pago
+  monto: number
+}
 
 export const citasValidator = zValidator("json", CitasSchema, (result, c) => {
   if (!result.success) {

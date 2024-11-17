@@ -10,6 +10,7 @@ import { Mascotas } from "./routes/mascotas/mascotas.js";
 import { Disponibilidades } from "./routes/disponibilidades/disponibilidades.js";
 import { Citas } from "./routes/citas/citas.js";
 import { Notificaciones } from "./routes/notificaciones/notificaciones.js";
+import { cors } from "hono/cors";
 
 export type Variables = {
   prisma: PrismaClient;
@@ -32,6 +33,9 @@ app.use("*", async (c, next) => {
     return jwt({ secret: JWT_SECRET })(c, next);
   }
 });
+app.use("*", cors({
+  origin: "*"
+}));
 app.use(logger());
 
 app.route("/users", Usuarios);
@@ -42,7 +46,7 @@ app.route("/dispos", Disponibilidades);
 app.route("/citas", Citas);
 app.route("/notificaciones", Notificaciones);
 
-const port = 3000;
+const port = 4000;
 console.log(`Server is running on http://localhost:${port}`);
 
 serve({

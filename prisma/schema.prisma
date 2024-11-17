@@ -178,10 +178,10 @@ enum notificaciones_tipo {
 }
 
 enum pagos_metodo_pago {
-  tarjeta_credito
-  tarjeta_debito
-  transferencia
-  efectivo
+  TarjetaDeCredito
+  TarjetaDeDebito
+  TransferenciaBancaria
+  fectivo
 }
 
 enum citas_estado {
