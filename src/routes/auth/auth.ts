@@ -88,6 +88,7 @@ Auth.post("/login", async (c) => {
           id_usuario: userExist.id_usuario,
           nombre: userExist.nombre,
           email: userExist.email,
+          rol: userExist.rol
         },
       },
       200

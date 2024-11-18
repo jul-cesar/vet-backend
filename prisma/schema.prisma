@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Facturas {
-  id_factura    String    @id @default(cuid())
+  id_factura    String    @id @default(uuid())
   id_pago       String
   fecha_emision DateTime? @default(now()) @db.DateTime(0)
   monto_total   Decimal   @db.Decimal(10, 2)
@@ -19,19 +19,8 @@ model Facturas {
   @@index([id_pago], map: "id_pago")
 }
 
-model HistorialCitas {
-  id_historial   String    @id @default(cuid())
-  id_cita        String
-  fecha_servicio DateTime? @db.DateTime(0)
-  observaciones  String?   @db.Text
-
-  cita Citas @relation(fields: [id_cita], references: [id_cita], onDelete: Cascade)
-
-  @@index([id_cita], map: "id_cita")
-}
-
 model Mascotas {
-  id_mascota     String    @id @default(cuid())
+  id_mascota     String    @id @default(uuid())
   id_usuario     String
   nombre         String    @db.VarChar(50)
   especie        String    @db.VarChar(50)
@@ -47,7 +36,7 @@ model Mascotas {
 }
 
 model Mensajes {
-  id_mensaje        String    @id @default(cuid())
+  id_mensaje        String    @id @default(uuid())
   id_usuario_envia  String
   id_usuario_recibe String
   contenido         String    @db.Text
@@ -62,7 +51,7 @@ model Mensajes {
 }
 
 model Notificaciones {
-  id_notificacion String              @id @default(cuid())
+  id_notificacion String              @id @default(uuid())
   id_usuario      String
   tipo            notificaciones_tipo
   mensaje         String              @db.Text
@@ -75,7 +64,7 @@ model Notificaciones {
 }
 
 model Pagos {
-  id_pago     String            @id @default(cuid())
+  id_pago     String            @id @default(uuid())
   id_usuario  String
   id_cita     String?
   monto       Decimal           @db.Decimal(10, 3)
@@ -92,7 +81,7 @@ model Pagos {
 }
 
 model Servicios {
-  id_servicio     String  @id @default(cuid())
+  id_servicio     String  @id @default(uuid())
   img             String
   nombre          String  @db.VarChar(100)
   descripcion     String? @db.Text
@@ -108,7 +97,7 @@ model Servicios {
 }
 
 model Usuarios {
-  id_usuario           String     @id @default(cuid())
+  id_usuario           String     @id @default(uuid())
   nombre               String     @db.VarChar(100)
   email                String     @unique @db.VarChar(100)
   password             String     @db.VarChar(255)
@@ -128,7 +117,7 @@ model Usuarios {
 }
 
 model Citas {
-  id_cita           String       @id @default(cuid())
+  id_cita           String       @id @default(uuid())
   id_usuario        String
   id_mascota        String
   id_servicio       String
@@ -142,12 +131,11 @@ model Citas {
   servicio       Servicios              @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
   disponibilidad DisponibilidadServicio @relation(name: "citaDisponibilidad", fields: [id_disponibilidad], references: [id_disponibilidad], onDelete: Cascade)
 
-  HistorialCitas HistorialCitas[]
-  Pagos          Pagos[]
+  Pagos Pagos[]
 }
 
 model DisponibilidadServicio {
-  id_disponibilidad String                @id @default(cuid())
+  id_disponibilidad String                @id @default(uuid())
   id_servicio       String
   fecha             DateTime
   estado            disponibilidad_estado @default(disponible)
@@ -181,7 +169,7 @@ enum pagos_metodo_pago {
   TarjetaDeCredito
   TarjetaDeDebito
   TransferenciaBancaria
-  fectivo
+  Efectivo
 }
 
 enum citas_estado {

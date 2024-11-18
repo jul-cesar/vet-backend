@@ -3,10 +3,10 @@ import { citas_estado, pagos_metodo_pago } from "@prisma/client";
 import { z } from "zod";
 
 const CitasSchema = z.object({
-  id_usuario: z.string().cuid(),
-  id_mascota: z.string().cuid(),
-  id_servicio: z.string().cuid(),
-  id_disponibilidad: z.string().cuid(),
+  id_usuario: z.string().uuid(),
+  id_mascota: z.string().uuid(),
+  id_servicio: z.string().uuid(),
+  id_disponibilidad: z.string().uuid(),
 
   descripcion: z
     .string()

@@ -3,7 +3,7 @@ import { notificaciones_tipo } from "@prisma/client";
 import { z } from "zod";
 
 const notificacionesSchema = z.object({
-  id_notificacion: z.string().cuid(),
+  id_notificacion: z.string().uuid(),
   id_usuario: z.string(),
   tipo: z.nativeEnum(notificaciones_tipo, {
     errorMap: () => ({ message: "Tipo de notificación no válido." }),

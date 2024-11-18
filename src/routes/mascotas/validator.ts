@@ -6,7 +6,7 @@ const mascotasSchema = z.object({
   nombre: z
     .string()
     .min(1, { message: "El nombre de la mascota es obligatorio." })
-    .max(50, { message: "El nombre no debe exceder los 50 caracteres." }),
+    .max(50, { message: "El nombre no debe exceder los 50 caracteres." }).uuid(),
   especie: z
     .string()
     .min(1, { message: "La especie de la mascota es obligatoria." })

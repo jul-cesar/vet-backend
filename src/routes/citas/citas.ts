@@ -26,6 +26,13 @@ Citas.get("/:id", async (c) => {
       where: {
         id_usuario: idUser,
       },
+      include: {
+        Pagos: {
+          select: {
+            estado: true,
+          },
+        },
+      },
     });
     return c.json(citas);
   } catch (error) {
@@ -111,7 +118,7 @@ Citas.post("/", citasValidator, async (c) => {
       },
     });
 
-    const servicio = await prisma.disponibilidadServicio.update({
+    await prisma.disponibilidadServicio.update({
       where: {
         id_disponibilidad,
       },
@@ -119,12 +126,15 @@ Citas.post("/", citasValidator, async (c) => {
         estado: "reservado",
       },
     });
+    const pagoCompleto = montoDecimal === Number(servicioExist.precio);
+    console.log(pagoCompleto);
     const pago = await prisma.pagos.create({
       data: {
-        metodo_pago: "tarjeta_credito",
+        metodo_pago,
         monto: montoDecimal,
         id_cita: newCita.id_cita,
         id_usuario,
+        estado: pagoCompleto ? "completado" : "pendiente",
       },
     });
 
