@@ -61,11 +61,16 @@ Notificaciones.get("/:id", async (c) => {
       where: {
         id_usuario: idUser,
       },
+      
+      
     });
     if (!userExists) {
       return c.json({ message: "Usuario no existente" }, 404);
     }
     const notis = await prisma.notificaciones.findMany({
+      orderBy: {
+        fecha_envio: "desc"
+      },
       where: {
         id_usuario: idUser,
       },
@@ -81,4 +86,3 @@ Notificaciones.get("/:id", async (c) => {
     );
   }
 });
-

@@ -66,6 +66,7 @@ Mascotas.post("/", mascotasValidator, async (c) => {
     const body = await c.req.json<Mascota>();
 
     const { especie, nombre, edad, id_usuario, notas_medicas, raza } = body;
+    console.log(especie, nombre, edad, id_usuario, notas_medicas, raza)
 
     const mascotaCreated = await prisma.mascotas.create({
       data: {
